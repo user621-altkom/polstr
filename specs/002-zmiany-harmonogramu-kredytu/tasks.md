@@ -21,16 +21,16 @@ description: "Lista zadań implementacji wyboru skutku nadpłaty"
 
 **Purpose**: Potwierdzenie stanu bazowego i przygotowanie punktu odniesienia dla zmiany.
 
-- [ ] T001 Uruchom `npm test` i zapisz bazowy wynik istniejących testów domeny z `tests/harmonogram.test.ts` w kontekście implementacji CR-A.
-- [ ] T002 [P] Sprawdź zgodność istniejących nazw `efekt`, wartości `rata`/`okres` oraz formularza nadpłat z planem w `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts` i `app/page.tsx`.
+- [X] T001 Uruchom `npm test` i zapisz bazowy wynik istniejących testów domeny z `tests/harmonogram.test.ts` w kontekście implementacji CR-A.
+- [X] T002 [P] Sprawdź zgodność istniejących nazw `efekt`, wartości `rata`/`okres` oraz formularza nadpłat z planem w `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts` i `app/page.tsx`.
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
 **Purpose**: Ustalenie kontraktu danych i przypadków testowych, które blokują implementację historii.
 
-- [ ] T003 [P] Zaktualizuj typ wejściowej nadpłaty w modelu domenowym zgodnie z regułą: `nrRaty` jest dodatnią liczbą całkowitą nie większą niż `liczbaRat`, `kwotaGr` jest dodatnią liczbą całkowitą w groszach, a brak `efekt` oznacza `okres`, w `src/domena/harmonogram.ts`.
-- [ ] T004 [P] Przygotuj test kontraktu endpointu dla jawnych efektów `rata` i `okres` oraz braku pola `efekt`, w `tests/harmonogram-api.test.ts`.
-- [ ] T005 [P] Zaktualizuj opis parametrów i odpowiedzi endpointu, w tym domyślnego `okres` przy braku `nadplata[i][efekt]`, w `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md`.
+- [X] T003 [P] Zaktualizuj typ wejściowej nadpłaty w modelu domenowym zgodnie z regułą: `nrRaty` jest dodatnią liczbą całkowitą nie większą niż `liczbaRat`, `kwotaGr` jest dodatnią liczbą całkowitą w groszach, a brak `efekt` oznacza `okres`, w `src/domena/harmonogram.ts`.
+- [X] T004 [P] Przygotuj test kontraktu endpointu dla jawnych efektów `rata` i `okres` oraz braku pola `efekt`, w `tests/harmonogram-api.test.ts`.
+- [X] T005 [P] Zaktualizuj opis parametrów i odpowiedzi endpointu, w tym domyślnego `okres` przy braku `nadplata[i][efekt]`, w `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md`.
 
 **Checkpoint**: Kontrakt i przypadki testowe są ustalone; można rozpocząć implementację US1.
 
@@ -44,19 +44,19 @@ description: "Lista zadań implementacji wyboru skutku nadpłaty"
 
 > Testy są wymagane przez specyfikację i konstytucję projektu. Najpierw muszą oblać się przed implementacją.
 
-- [ ] T006 [US1] Dodaj czerwony test liczby kontrolnej CR-A dla trybu `rata`: rata przed nadpłatą 2 265,07 zł, saldo po racie 1 i nadpłacie 269 399,93 zł, 240 rat łącznie oraz rata od drugiego okresu 2 038,11 zł, w `tests/harmonogram.test.ts`.
-- [ ] T007 [US1] Dodaj czerwony test liczby kontrolnej CR-A dla trybu `okres`: rata regularna 2 265,07 zł, 196 rat łącznie, 195 rat po nadpłacie i ostatnia rata 2 200,53 zł, w `tests/harmonogram.test.ts`.
-- [ ] T008 [US1] Dodaj test braku `efekt` jako domyślnego `okres`, test wielu nadpłat z niezależnymi efektami, test nadpłaty równej lub większej od salda oraz inwariantów `saldoGr >= 0`, `sumaKapitaluGr + sumaNadplatGr = kwotaGr`, w `tests/harmonogram.test.ts`.
-- [ ] T009 [US1] Dodaj test odrzucenia zerowej lub ujemnej kwoty nadpłaty, niepoprawnego numeru raty i nieznanego efektu, w `tests/harmonogram.test.ts`.
+- [X] T006 [US1] Dodaj czerwony test liczby kontrolnej CR-A dla trybu `rata`: rata przed nadpłatą 2 265,07 zł, saldo po racie 1 i nadpłacie 269 399,93 zł, 240 rat łącznie oraz rata od drugiego okresu 2 038,11 zł, w `tests/harmonogram.test.ts`.
+- [X] T007 [US1] Dodaj czerwony test liczby kontrolnej CR-A dla trybu `okres`: rata regularna 2 265,07 zł, 196 rat łącznie, 195 rat po nadpłacie i ostatnia rata 2 200,53 zł, w `tests/harmonogram.test.ts`.
+- [X] T008 [US1] Dodaj test braku `efekt` jako domyślnego `okres`, test wielu nadpłat z niezależnymi efektami, test nadpłaty równej lub większej od salda oraz inwariantów `saldoGr >= 0`, `sumaKapitaluGr + sumaNadplatGr = kwotaGr`, w `tests/harmonogram.test.ts`.
+- [X] T009 [US1] Dodaj test odrzucenia zerowej lub ujemnej kwoty nadpłaty, niepoprawnego numeru raty i nieznanego efektu, w `tests/harmonogram.test.ts`.
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Znormalizuj wpis nadpłaty w `src/domena/harmonogram.ts`, aby brak `efekt` przyjmował wartość `okres`, jawne wartości ograniczały się do `rata | okres`, a wpisy dla tego samego numeru raty zachowywały regułę agregacji i konfliktów.
-- [ ] T011 [US1] Uporządkuj obliczenia w `src/domena/harmonogram.ts`, aby odsetki i regularna rata były liczone od salda sprzed nadpłaty, nadpłata była odejmowana po racie, a efekt `rata` przeliczał ratę od następnego okresu dla pozostałej liczby rat.
-- [ ] T012 [US1] Uporządkuj obsługę efektu `okres` w `src/domena/harmonogram.ts`, aby rata regularna pozostała bez zmiany, harmonogram kończył się po wyzerowaniu salda i ostatni okres korygował kapitał bez ujemnego salda.
-- [ ] T013 [US1] Zmień parser nadpłat w `app/api/harmonogram/route.ts`, aby brak `nadplata[i][efekt]` normalizował się do `okres`, jawne wartości `rata`/`okres` były przekazywane dalej, a nieznana wartość kończyła się błędem 400.
-- [ ] T014 [US1] Zweryfikuj istniejący wybór efektu, dodawanie, edycję i usuwanie nadpłaty w `app/page.tsx`; wprowadź zmianę tylko wtedy, gdy test kontraktu ujawni niespójność z wartościami `rata`/`okres`.
-- [ ] T015 [US1] Zaktualizuj `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md` oraz `specs/002-zmiany-harmonogramu-kredytu/quickstart.md` o finalny kontrakt, przykłady obu trybów i przykład braku `efekt`.
+- [X] T010 [US1] Znormalizuj wpis nadpłaty w `src/domena/harmonogram.ts`, aby brak `efekt` przyjmował wartość `okres`, jawne wartości ograniczały się do `rata | okres`, a wpisy dla tego samego numeru raty zachowywały regułę agregacji i konfliktów.
+- [X] T011 [US1] Uporządkuj obliczenia w `src/domena/harmonogram.ts`, aby odsetki i regularna rata były liczone od salda sprzed nadpłaty, nadpłata była odejmowana po racie, a efekt `rata` przeliczał ratę od następnego okresu dla pozostałej liczby rat.
+- [X] T012 [US1] Uporządkuj obsługę efektu `okres` w `src/domena/harmonogram.ts`, aby rata regularna pozostała bez zmiany, harmonogram kończył się po wyzerowaniu salda i ostatni okres korygował kapitał bez ujemnego salda.
+- [X] T013 [US1] Zmień parser nadpłat w `app/api/harmonogram/route.ts`, aby brak `nadplata[i][efekt]` normalizował się do `okres`, jawne wartości `rata`/`okres` były przekazywane dalej, a nieznana wartość kończyła się błędem 400.
+- [X] T014 [US1] Zweryfikuj istniejący wybór efektu, dodawanie, edycję i usuwanie nadpłaty w `app/page.tsx`; wprowadź zmianę tylko wtedy, gdy test kontraktu ujawni niespójność z wartościami `rata`/`okres`.
+- [X] T015 [US1] Zaktualizuj `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md` oraz `specs/002-zmiany-harmonogramu-kredytu/quickstart.md` o finalny kontrakt, przykłady obu trybów i przykład braku `efekt`.
 
 **Checkpoint**: US1 jest niezależnie działająca i można zweryfikować liczby kontrolne CR-A bez zmian w pozostałych funkcjach harmonogramu.
 
@@ -64,11 +64,11 @@ description: "Lista zadań implementacji wyboru skutku nadpłaty"
 
 **Purpose**: Końcowa walidacja, zgodność dokumentacji i kontrola regresji.
 
-- [ ] T016 [P] Uruchom `npm test` i potwierdź zielone testy CR-A oraz istniejące testy bez nadpłat, w `tests/harmonogram.test.ts` i `tests/harmonogram-api.test.ts`.
-- [ ] T017 [P] Uruchom `npm run typecheck` i usuń wyłącznie błędy wynikające z implementacji CR-A w `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts` lub `app/page.tsx`.
-- [ ] T018 [P] Uruchom `npm run build` i potwierdź produkcyjny build aplikacji zgodnie z bramką jakości projektu.
-- [ ] T019 Uruchom scenariusze z `specs/002-zmiany-harmonogramu-kredytu/quickstart.md` i porównaj odpowiedzi API z `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md`.
-- [ ] T020 Sprawdź `git diff --check` dla `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts`, `app/page.tsx` i `tests/`, oraz zgodność implementacji z zakresem CR-A; nie dodawaj obsługi innych zmian finansowych.
+- [X] T016 [P] Uruchom `npm test` i potwierdź zielone testy CR-A oraz istniejące testy bez nadpłat, w `tests/harmonogram.test.ts` i `tests/harmonogram-api.test.ts`.
+- [X] T017 [P] Uruchom `npm run typecheck` i usuń wyłącznie błędy wynikające z implementacji CR-A w `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts` lub `app/page.tsx`.
+- [X] T018 [P] Uruchom `npm run build` i potwierdź produkcyjny build aplikacji zgodnie z bramką jakości projektu.
+- [X] T019 Uruchom scenariusze z `specs/002-zmiany-harmonogramu-kredytu/quickstart.md` i porównaj odpowiedzi API z `specs/002-zmiany-harmonogramu-kredytu/contracts/harmonogram-api.md`.
+- [X] T020 Sprawdź `git diff --check` dla `src/domena/harmonogram.ts`, `app/api/harmonogram/route.ts`, `app/page.tsx` i `tests/`, oraz zgodność implementacji z zakresem CR-A; nie dodawaj obsługi innych zmian finansowych.
 
 ## Dependencies & Execution Order
 

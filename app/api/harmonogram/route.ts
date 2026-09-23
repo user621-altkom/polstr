@@ -31,15 +31,24 @@ function parsujNadplaty(szukane: URLSearchParams): Nadplata[] {
     const wpis = wpisy.get(indeks) ?? {};
     if (pole === 'nrRaty') wpis.nrRaty = parsujLiczbe(wartość);
     if (pole === 'kwota') wpis.kwotaGr = Math.round(parsujLiczbe(wartość) * 100);
-    if (pole === 'efekt' && (wartość === 'rata' || wartość === 'okres')) wpis.efekt = wartość;
+    if (pole === 'efekt') {
+      if (wartość !== 'rata' && wartość !== 'okres') {
+        throw new BladWalidacji('efekt nadpłaty musi być rata albo okres');
+      }
+      wpis.efekt = wartość;
+    }
     wpisy.set(indeks, wpis);
   }
 
   return [...wpisy.entries()].sort(([pierwszy], [drugi]) => pierwszy - drugi).map(([, wpis]) => {
-    if (!Number.isInteger(wpis.nrRaty) || !wpis.nrRaty || !wpis.kwotaGr || !wpis.efekt) {
-      throw new BladWalidacji('nadpłata musi zawierać nrRaty, kwotę i efekt');
+    if (!Number.isInteger(wpis.nrRaty) || !wpis.nrRaty || !wpis.kwotaGr) {
+      throw new BladWalidacji('nadpłata musi zawierać nrRaty i kwotę');
     }
-    return wpis as Nadplata;
+    return {
+      nrRaty: wpis.nrRaty,
+      kwotaGr: wpis.kwotaGr,
+      efekt: wpis.efekt ?? 'okres',
+    } as Nadplata;
   });
 }
 

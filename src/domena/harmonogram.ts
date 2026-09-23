@@ -11,7 +11,7 @@ export interface ParametryKredytu {
 export interface Nadplata {
   nrRaty: number;
   kwotaGr: number;
-  efekt: 'rata' | 'okres';
+  efekt?: 'rata' | 'okres';
 }
 
 export interface WpisSerii {
@@ -157,21 +157,22 @@ function obliczRateRowna(saldoGr: number, liczbaRat: number, stopaRoczna: number
 function przygotujNadplaty(parametry: ParametryKredytu): Map<number, Nadplata> {
   const nadplaty = new Map<number, Nadplata>();
   for (const nadplata of parametry.nadplaty ?? []) {
+    const efekt = nadplata.efekt ?? 'okres';
     if (!jestDodatniaLiczbaCałkowita(nadplata.nrRaty)
       || nadplata.nrRaty > parametry.liczbaRat
       || !jestDodatniaLiczbaCałkowita(nadplata.kwotaGr)
-      || (nadplata.efekt !== 'rata' && nadplata.efekt !== 'okres')) {
+      || (efekt !== 'rata' && efekt !== 'okres')) {
       throw new BladWalidacji('nadpłata ma niepoprawny numer, kwotę albo efekt');
     }
 
     const poprzednia = nadplaty.get(nadplata.nrRaty);
-    if (poprzednia && poprzednia.efekt !== nadplata.efekt) {
+    if (poprzednia && poprzednia.efekt !== efekt) {
       throw new BladWalidacji('nadpłaty w jednym numerze raty muszą mieć ten sam efekt');
     }
     nadplaty.set(nadplata.nrRaty, {
       nrRaty: nadplata.nrRaty,
       kwotaGr: (poprzednia?.kwotaGr ?? 0) + nadplata.kwotaGr,
-      efekt: nadplata.efekt,
+      efekt,
     });
   }
   return nadplaty;

@@ -53,3 +53,5 @@ Sprawdź endpoint bez pola `efekt`. Powinien zwrócić znormalizowany efekt `okr
 ```
 
 W obu odpowiedziach sprawdź, że suma kapitału i nadpłat wynosi 300 000,00 zł, a saldo końcowe wynosi 0,00 zł.
+
+Liczby 2 038,11 zł, 196 rat i 2 200,53 zł są kontrolą domenową CR-A dla stałej serii 4,55% + marża 2,11 pp. Endpoint korzysta z aktualnej serii `WIBOR_3M`, dlatego weryfikacja API dotyczy przede wszystkim efektu, liczby rat wynikającej z tej serii, bilansu i salda.
