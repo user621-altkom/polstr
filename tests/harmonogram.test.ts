@@ -154,4 +154,83 @@ describe('harmonogram z nadpłatami', () => {
     expect(wynik.sumaKapitaluGr + wynik.sumaNadplatGr).toBe(parametryNadplaty.kwotaGr);
     expect(wynik.harmonogram.at(-1)?.saldoGr).toBe(0);
   });
+
+  const parametryCrA: ParametryKredytu = {
+    kwotaGr: 30_000_000,
+    liczbaRat: 240,
+    marza: 0.0211,
+    typRat: 'rowne',
+    wskaznik: 'WIBOR_3M',
+    pierwszaRata: '2026-10-01',
+  };
+  const seriaCrA: WpisSerii[] = [{ od: '2020-01-01', stopa: 0.0455 }];
+
+  it('spełnia liczby kontrolne CR-A dla trybu obniżenia raty', () => {
+    const wynik = policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 1, kwotaGr: 3_000_000, efekt: 'rata' }],
+    }, seriaCrA);
+
+    expect(wynik.rataPierwszaGr).toBeCloseTo(226_507, -1);
+    expect(wynik.harmonogram[0]?.saldoGr).toBe(26_939_993);
+    expect(wynik.harmonogram).toHaveLength(240);
+    expect(wynik.harmonogram[1]?.rataGr).toBeCloseTo(203_811, -1);
+  });
+
+  it('spełnia liczby kontrolne CR-A dla trybu skrócenia okresu', () => {
+    const wynik = policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 1, kwotaGr: 3_000_000, efekt: 'okres' }],
+    }, seriaCrA);
+
+    expect(wynik.harmonogram).toHaveLength(196);
+    expect(wynik.harmonogram[0]?.rataGr).toBeCloseTo(226_507, -1);
+    expect(wynik.harmonogram.at(-1)?.rataGr).toBeCloseTo(220_053, -1);
+  });
+
+  it('traktuje brak efektu jako skrócenie okresu', () => {
+    const wynik = policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 1, kwotaGr: 3_000_000 }],
+    }, seriaCrA);
+
+    expect(wynik.harmonogram).toHaveLength(196);
+    expect(wynik.harmonogram.at(-1)?.saldoGr).toBe(0);
+  });
+
+  it('zachowuje niezależne efekty wielu nadpłat i bilans kapitału', () => {
+    const wynik = policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [
+        { nrRaty: 1, kwotaGr: 500_000, efekt: 'rata' },
+        { nrRaty: 12, kwotaGr: 500_000, efekt: 'okres' },
+      ],
+    }, seriaCrA);
+
+    expect(wynik.parametry.nadplaty).toEqual([
+      { nrRaty: 1, kwotaGr: 500_000, efekt: 'rata' },
+      { nrRaty: 12, kwotaGr: 500_000, efekt: 'okres' },
+    ]);
+    expect(wynik.harmonogram.every((wiersz) => wiersz.saldoGr >= 0)).toBe(true);
+    expect(wynik.sumaKapitaluGr + wynik.sumaNadplatGr).toBe(parametryCrA.kwotaGr);
+    expect(wynik.harmonogram.at(-1)?.saldoGr).toBe(0);
+  });
+
+  it.each([0, -1])('odrzuca niepoprawną kwotę nadpłaty: %s', (kwotaGr) => {
+    expect(() => policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 1, kwotaGr }],
+    }, seriaCrA)).toThrow();
+  });
+
+  it('odrzuca nadpłatę poza liczbą rat i nieznany efekt', () => {
+    expect(() => policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 241, kwotaGr: 1_000 }],
+    }, seriaCrA)).toThrow();
+    expect(() => policzHarmonogram({
+      ...parametryCrA,
+      nadplaty: [{ nrRaty: 1, kwotaGr: 1_000, efekt: 'nieznany' as unknown as 'rata' }],
+    }, seriaCrA)).toThrow();
+  });
 });
