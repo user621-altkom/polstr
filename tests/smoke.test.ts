@@ -17,17 +17,18 @@ describe('dane wskaźników z katalogu dane/', () => {
 });
 
 describe('domena', () => {
-  it('policzHarmonogram jest szkieletem i zgłasza brak implementacji', () => {
-    expect(() =>
-      policzHarmonogram({
-        kwotaGr: 400_000_00,
-        liczbaRat: 300,
-        marza: 0.0211,
-        typRat: 'rowne',
-        wskaznik: 'POLSTR_1M',
-        pierwszaRata: '2026-10-01',
-      }),
-    ).toThrow('nie zaimplementowano');
+  it('buduje harmonogram na podstawie serii wskaźnika', () => {
+    const wynik = policzHarmonogram({
+      kwotaGr: 400_000_00,
+      liczbaRat: 300,
+      marza: 0.0211,
+      typRat: 'rowne',
+      wskaznik: 'POLSTR_1M',
+      pierwszaRata: '2026-10-01',
+    }, seriaWskaznika('POLSTR_1M'));
+
+    expect(wynik.harmonogram).toHaveLength(300);
+    expect(wynik.harmonogram.at(-1)?.saldoGr).toBe(0);
   });
 
   it('testy działają w strefie Europe/Warsaw', () => {
