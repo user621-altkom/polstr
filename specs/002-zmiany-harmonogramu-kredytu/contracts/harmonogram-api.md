@@ -42,7 +42,7 @@ Dla trybu `rata` liczba rat pozostaje niezmieniona, a kolejne raty są niższe. 
 
 ```json
 {
-  "blad": "nadpłata musi zawierać nrRaty, kwotę i efekt",
+  "blad": "nadpłata musi zawierać nrRaty i kwotę",
   "przyklad": "/api/harmonogram?..."
 }
 ```
